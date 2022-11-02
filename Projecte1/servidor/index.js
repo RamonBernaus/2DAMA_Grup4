@@ -72,10 +72,15 @@ app.get("/create/:user/:pwd", (req, res) => {
     let nickname = req.params.user;
     let password = req.params.pwd;
 
+    let creation = {
+        ok: false,
+        text: ""
+    };
+
     con.connect(function(err){
         if(err) throw err;
         else {
-            let sqlCheck = "SELECT * FROM GENERICUSER WHERE nick = " + nickname;
+            let sqlCheck = "SELECT * FROM GENERICUSER WHERE nick = '" + nickname + "'";
             con.query(sqlCheck, function (err, result, fields){
                 if(err) throw err;
                 if(result.length == 0){
@@ -84,15 +89,36 @@ app.get("/create/:user/:pwd", (req, res) => {
                     con.query(sqlInsert, function (err, result){
                         if(err) throw err;
                         if(result.affectedRows > 0){
-                            return true;
+                            let sqlGet = "SELECT code FROM GENERICUSER WHERE nick = '" + nickname + "' AND pwd = '" + pwd + "'";
+                            con.query(sqlGet, function (err, result, fields) {
+                                if(err) throw err;
+                                else {
+                                    let row = result[0];
+                                    let code = row.code;
+                                    let sqlInsertToCommon = "INSERT INTO COMMONUSER VALUES (" + code + ")";
+                                    con.query(sqlInsertToCommon, function (err, result){
+                                        if (err) throw err;
+                                        if(result.affectedRows > 0){
+                                            creation.ok = true;
+                                            creation.text = "Has crreat un usuari amb exit"
+                                        }
+                                    });
+                                }
+                            });
+                            
                         }else{
-                            return false;
+                            creation.text = "No s'ha pogut crear l'usuari. Torna-ho a intentar.";
                         }
                     });
+
+                    
 
                 } else {
                     console.log("Ja existeix un usuari amb aquests paràmetres, canvia el nick siusplau")
                 }
+
+                let str = JSON.stringify(creation);
+                res.send(str);
             });
 
             con.end(function(err) {

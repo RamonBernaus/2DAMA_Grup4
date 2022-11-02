@@ -38,6 +38,31 @@ var app = new Vue({
                     console.log(error);
                 }
             )
+        },
+
+        createUser: function(){
+            
+            console.log("Create User work");
+            const myHeaders = new Headers();
+
+            fetch("http://127.0.0.1:3000/create/" + this.user + "/" + this.pwd, {
+                method: "GET",
+                headers: myHeaders,
+                mode: 'cors',
+            }).then(
+                (response) => {
+                    return response.json();
+                }
+            ).then(
+                (data) => {
+                    this.text = data.text;
+                }
+            ).catch(
+                (error) => {
+                    console.log("ERROR!!");
+                    console.log(error);
+                }
+            )
         }
     }
 });
