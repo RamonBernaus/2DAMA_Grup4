@@ -77,48 +77,40 @@ app.get("/create/:user/:pwd", (req, res) => {
         text: ""
     };
 
+    if(userExists(nickname)){
+        creation.text = "Ja existeix un usuari amb aquests paràmetres, canvia el nick siusplau";
+    } else {
+        if (insertUser(nickname, password)){
+            let code = getUserCode(nickname, password);
+            if (addToCommon(code)){
+                creation.ok = true;
+                creation.text = "Has crreat un usuari amb exit";
+            }
+        } else {
+            creation.text = "No s'ha pogut crear l'usuari. prova-ho de nou mes tard."
+        }
+    }
+    
+    let str = JSON.stringify(creation);
+    res.send(str);
+});
+    
+
+//Funcions de suport
+//CHECK IF USER EXIST
+function userExists (nickname) {
     con.connect(function(err){
         if(err) throw err;
         else {
+            let exist;
             let sqlCheck = "SELECT * FROM GENERICUSER WHERE nick = '" + nickname + "'";
             con.query(sqlCheck, function (err, result, fields){
                 if(err) throw err;
                 if(result.length == 0){
-
-                    let sqlInsert = "INSER INTO GENERICUSER VALUES ('" + nickname + "', '" + pwd + "', 'common')";
-                    con.query(sqlInsert, function (err, result){
-                        if(err) throw err;
-                        if(result.affectedRows > 0){
-                            let sqlGet = "SELECT code FROM GENERICUSER WHERE nick = '" + nickname + "' AND pwd = '" + pwd + "'";
-                            con.query(sqlGet, function (err, result, fields) {
-                                if(err) throw err;
-                                else {
-                                    let row = result[0];
-                                    let code = row.code;
-                                    let sqlInsertToCommon = "INSERT INTO COMMONUSER VALUES (" + code + ")";
-                                    con.query(sqlInsertToCommon, function (err, result){
-                                        if (err) throw err;
-                                        if(result.affectedRows > 0){
-                                            creation.ok = true;
-                                            creation.text = "Has crreat un usuari amb exit"
-                                        }
-                                    });
-                                }
-                            });
-                            
-                        }else{
-                            creation.text = "No s'ha pogut crear l'usuari. Torna-ho a intentar.";
-                        }
-                    });
-
-                    
-
+                    exist = false;
                 } else {
-                    console.log("Ja existeix un usuari amb aquests paràmetres, canvia el nick siusplau")
+                    exist = true;
                 }
-
-                let str = JSON.stringify(creation);
-                res.send(str);
             });
 
             con.end(function(err) {
@@ -127,9 +119,92 @@ app.get("/create/:user/:pwd", (req, res) => {
                 }
             });
         }
+        return exist;
     });
-});
+}
 
+//INSERT USER
+function insertUser(nickname, password){
+    con.connect(function(err){
+        if(err) throw err;
+        else {
+
+            let insertOK;
+            let sqlInsert = "INSER INTO GENERICUSER VALUES ('" + nickname + "', '" + password + "', 'common')";
+
+            con.query(sqlInsert, function (err, result){
+                if(err) throw err;
+                if(result.affectedRows == 1){
+                    insertOK = true;
+                } else {
+                    insertOK = false;
+                }
+
+                con.end(function(err) {
+                    if (err){
+                        return console.log('error:' + err.message);
+                    }
+                });
+            });
+        }
+        return insertOK;
+    });
+}
+
+//GET USER CODE
+function getUserCode(nickname, password){
+    con.connect(function(err){
+        if(err) throw err;
+        else {
+
+            let code;
+            let sqlGet = "SELECT code FROM GENERICUSER WHERE nick = '" + nickname + "' AND pwd = '" + password + "'";
+                            
+            con.query(sqlGet, function (err, result, fields) {
+                if(err) throw err;
+                else {
+                    let row = result[0];
+                    code = row.code;
+                }
+            });
+
+            con.end(function(err) {
+                if (err){
+                    return console.log('error:' + err.message);
+                }
+            });
+        }
+        return code;
+    });
+}
+
+//ADD TO COMMON
+function addToCommon(code){
+    con.connect(function(err){
+        if(err) throw err;
+        else {
+
+            let added;
+            let sqlInsertToCommon = "INSERT INTO COMMONUSER VALUES (" + code + ")";
+                            
+            con.query(sqlInsertToCommon, function (err, result) {
+                if(err) throw err;
+                if (result.affectedRows == 1) {
+                    added = true;                    
+                } else {
+                    added = false;
+                }
+
+                con.end(function(err) {
+                    if (err){
+                        return console.log('error:' + err.message);
+                    }
+                });
+            });
+        }
+        return added;
+    });
+}
 
 //Borrar usuari
 app.get("/delete/:userID", (req, res) => {
