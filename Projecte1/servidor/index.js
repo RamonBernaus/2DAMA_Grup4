@@ -5,12 +5,13 @@ const mysql = require ("mysql2");
 const app = express();
 const PORT = 3000;
 
-let con = mysql.createConnection({
+const bdParams = {
     host: "labs.inspedralbes.cat",
     user: "a21enrbonstr_grup4",
     password: "Velladona82",
     database: "a21enrbonstr_plasticprecios"
-});
+}
+
 
 app.use(cors(
     {
@@ -31,6 +32,7 @@ app.get("/auth/:user/:pwd", (req, res) => {
         role: "",
         text: ""
     };
+    let con = mysql.createConnection(bdParams);
 
     con.connect(function(err){
         if(err) throw err;
@@ -73,7 +75,6 @@ app.get("/create/:user/:pwd", (req, res) => {
     let password = req.params.pwd;
 
     let creation = {
-        ok: false,
         text: ""
     };
 
@@ -83,7 +84,6 @@ app.get("/create/:user/:pwd", (req, res) => {
         if (insertUser(nickname, password)){
             let code = getUserCode(nickname, password);
             if (addToCommon(code)){
-                creation.ok = true;
                 creation.text = "Has crreat un usuari amb exit";
             }
         } else {
@@ -99,6 +99,8 @@ app.get("/create/:user/:pwd", (req, res) => {
 //Funcions de suport
 //CHECK IF USER EXIST
 function userExists (nickname) {
+    let con = mysql.createConnection(bdParams);
+
     con.connect(function(err){
         if(err) throw err;
         else {
@@ -125,6 +127,8 @@ function userExists (nickname) {
 
 //INSERT USER
 function insertUser(nickname, password){
+    let con = mysql.createConnection(bdParams);
+
     con.connect(function(err){
         if(err) throw err;
         else {
@@ -153,6 +157,8 @@ function insertUser(nickname, password){
 
 //GET USER CODE
 function getUserCode(nickname, password){
+    let con = mysql.createConnection(bdParams);
+
     con.connect(function(err){
         if(err) throw err;
         else {
@@ -180,6 +186,8 @@ function getUserCode(nickname, password){
 
 //ADD TO COMMON
 function addToCommon(code){
+    let con = mysql.createConnection(bdParams);
+
     con.connect(function(err){
         if(err) throw err;
         else {
@@ -210,7 +218,8 @@ function addToCommon(code){
 app.get("/delete/:userID", (req, res) => {
 
     let id = req.params.userID;
-    
+    let con = mysql.createConnection(bdParams);
+
     con.connect(function (err){
         if(err) throw err;
         else {
@@ -239,6 +248,7 @@ app.get("/delete/:userID", (req, res) => {
 app.get("/getArtist/:name", (req, res) => {
 
     let artistName = req.params.name;
+    let con = mysql.createConnection(bdParams);
 
     con.connect(function(err){
         if(err) throw err;
