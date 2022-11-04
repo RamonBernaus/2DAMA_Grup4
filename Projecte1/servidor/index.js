@@ -99,12 +99,14 @@ app.get("/create/:user/:pwd", (req, res) => {
 //Funcions de suport
 //CHECK IF USER EXIST
 function userExists (nickname) {
+
     let con = mysql.createConnection(bdParams);
+    let exist;
 
     con.connect(function(err){
         if(err) throw err;
         else {
-            let exist;
+            
             let sqlCheck = "SELECT * FROM GENERICUSER WHERE nick = '" + nickname + "'";
             con.query(sqlCheck, function (err, result, fields){
                 if(err) throw err;
@@ -127,13 +129,14 @@ function userExists (nickname) {
 
 //INSERT USER
 function insertUser(nickname, password){
+    
     let con = mysql.createConnection(bdParams);
+    let insertOK;
 
     con.connect(function(err){
         if(err) throw err;
         else {
 
-            let insertOK;
             let sqlInsert = "INSER INTO GENERICUSER VALUES ('" + nickname + "', '" + password + "', 'common')";
 
             con.query(sqlInsert, function (err, result){
@@ -157,13 +160,14 @@ function insertUser(nickname, password){
 
 //GET USER CODE
 function getUserCode(nickname, password){
+
     let con = mysql.createConnection(bdParams);
+    let code;
 
     con.connect(function(err){
         if(err) throw err;
         else {
 
-            let code;
             let sqlGet = "SELECT code FROM GENERICUSER WHERE nick = '" + nickname + "' AND pwd = '" + password + "'";
                             
             con.query(sqlGet, function (err, result, fields) {
@@ -186,13 +190,14 @@ function getUserCode(nickname, password){
 
 //ADD TO COMMON
 function addToCommon(code){
+
     let con = mysql.createConnection(bdParams);
+    let added;
 
     con.connect(function(err){
         if(err) throw err;
         else {
 
-            let added;
             let sqlInsertToCommon = "INSERT INTO COMMONUSER VALUES (" + code + ")";
                             
             con.query(sqlInsertToCommon, function (err, result) {
