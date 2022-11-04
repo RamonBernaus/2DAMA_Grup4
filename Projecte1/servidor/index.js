@@ -83,6 +83,7 @@ app.get("/create/:user/:pwd", (req, res) => {
     } else {
         if (insertUser(nickname, password)){
             let code = getUserCode(nickname, password);
+
             if (addToCommon(code)){
                 creation.text = "Has crreat un usuari amb exit";
             }
@@ -98,17 +99,17 @@ app.get("/create/:user/:pwd", (req, res) => {
 
 //Funcions de suport
 //CHECK IF USER EXIST
-function userExists (nickname) {
+async function userExists (nickname) {
 
     let con = mysql.createConnection(bdParams);
     let exist;
 
-    con.connect(function(err){
+    await con.promise.connect(async function(err){
         if(err) throw err;
         else {
             
             let sqlCheck = "SELECT * FROM GENERICUSER WHERE nick = '" + nickname + "'";
-            con.query(sqlCheck, function (err, result, fields){
+            await con.promise.query(sqlCheck, function (err, result, fields){
                 if(err) throw err;
                 if(result.length == 0){
                     exist = false;
@@ -128,19 +129,20 @@ function userExists (nickname) {
 }
 
 //INSERT USER
-function insertUser(nickname, password){
+async function insertUser(nickname, password){
     
     let con = mysql.createConnection(bdParams);
     let insertOK;
 
-    con.connect(function(err){
+    await  con.promise().connect( async function(err){
         if(err) throw err;
         else {
 
-            let sqlInsert = "INSER INTO GENERICUSER VALUES ('" + nickname + "', '" + password + "', 'common')";
+            let sqlInsert = "INSERT INTO GENERICUSER VALUES ( NULL, '" + nickname + "', '" + password + "', 'common')";
 
-            con.query(sqlInsert, function (err, result){
+            await con.promise().query(sqlInsert, function (err, result){
                 if(err) throw err;
+                console.log(result.affectedRows + "," + result.changedRows);
                 if(result.affectedRows == 1){
                     insertOK = true;
                 } else {
@@ -158,19 +160,60 @@ function insertUser(nickname, password){
     });
 }
 
+//INSERT USER
+/*async function insertUser(nickname, password){
+    
+    let con = mysql.createConnection(bdParams);
+    let insertOK;
+    let myPromise = null;
+
+    await con.connect(function(err){
+        if(err) throw err;
+        else {
+
+            let sqlInsert = "INSERT INTO GENERICUSER VALUES ( NULL, '" + nickname + "', '" + password + "', 'common')";
+
+             myPromise = new Promise(function (resolve, reject){
+                resolve(
+                    con.query(sqlInsert, function (err, result){
+                        if(err) throw err;
+                        console.log(result.affectedRows + "," + result.changedRows);
+                        if(result.affectedRows == 1){
+                            console.log("true");
+                            return true;
+                        } else {
+                            console.log("false");
+
+                            return false;
+                        }
+                    })
+                );
+            })
+
+            con.end(function(err) {
+                if (err){
+                    return console.log('error:' + err.message);
+                }
+            });
+            
+        }
+    });
+    return insertOK = await myPromise;
+}*/
+
 //GET USER CODE
-function getUserCode(nickname, password){
+async function getUserCode(nickname, password){
 
     let con = mysql.createConnection(bdParams);
     let code;
 
-    con.connect(function(err){
+    await con.promise.connect(async function(err){
         if(err) throw err;
         else {
 
             let sqlGet = "SELECT code FROM GENERICUSER WHERE nick = '" + nickname + "' AND pwd = '" + password + "'";
                             
-            con.query(sqlGet, function (err, result, fields) {
+            con.promise.query(sqlGet, function (err, result, fields) {
                 if(err) throw err;
                 else {
                     let row = result[0];
@@ -189,18 +232,18 @@ function getUserCode(nickname, password){
 }
 
 //ADD TO COMMON
-function addToCommon(code){
+async function addToCommon(code){
 
     let con = mysql.createConnection(bdParams);
     let added;
 
-    con.connect(function(err){
+    await con.promise.connect(async function(err){
         if(err) throw err;
         else {
 
             let sqlInsertToCommon = "INSERT INTO COMMONUSER VALUES (" + code + ")";
                             
-            con.query(sqlInsertToCommon, function (err, result) {
+            con.promise.query(sqlInsertToCommon, function (err, result) {
                 if(err) throw err;
                 if (result.affectedRows == 1) {
                     added = true;                    
