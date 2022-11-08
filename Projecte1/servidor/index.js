@@ -1,16 +1,19 @@
 const express = require("express");
 const cors = require ("cors");
-const mysql = require ("mysql2");
+//const mysql= require ("mysql2/promise");
+const mysql2 = require ("mysql2");
 
 const app = express();
 const PORT = 3000;
 
-const bdParams = {
+const persistence = require('./persistence.js')
+
+/*const bdParams = {
     host: "labs.inspedralbes.cat",
     user: "a21enrbonstr_grup4",
     password: "Velladona82",
     database: "a21enrbonstr_plasticprecios"
-}
+}*/
 
 
 app.use(cors(
@@ -22,7 +25,7 @@ app.use(cors(
 ));
 
 //autetificació de Usuari.
-app.get("/auth/:user/:pwd", (req, res) => {
+/*app.get("/auth/:user/:pwd", (req, res) => {
 
     let nickname = req.params.user;
     let password = req.params.pwd;
@@ -32,7 +35,7 @@ app.get("/auth/:user/:pwd", (req, res) => {
         role: "",
         text: ""
     };
-    let con = mysql.createConnection(bdParams);
+    let con = mysql2.createConnection(bdParams);
 
     con.connect(function(err){
         if(err) throw err;
@@ -66,10 +69,44 @@ app.get("/auth/:user/:pwd", (req, res) => {
             });
         }
     });
+});*/
+
+app.get("/auth/:user/:pwd", async (req, res) => {
+
+    let nickname = req.params.user;
+    let password = req.params.pwd;
+
+    let config = {
+        auth: false,
+        role: "",
+        text: ""
+    };
+    
+    let result = await persistence.authQuery(nickname, password);
+    console.log(result);
+    let row = result[0];
+    console.log(result.length);
+    console.log(row);
+    console.log(row.code);
+    console.log(row.nick);
+    console.log(row.pwd);
+    console.log(row.rol);
+        if(result.length == 0){
+            config.text = "No estas registrat. Crea't un compte abans.";
+        } else if (result.length > 1){
+            config.text = "Alguna cosa a nat malament. No et dire que.";
+        } else {
+            config.auth = true;
+            config.role = row.rol;
+            config.text = "Benvingut/da " + nickname;
+        }
+
+        let str = JSON.stringify(config);
+        res.send(str);
 });
 
 //Creacio de nou usuari
-app.get("/create/:user/:pwd", (req, res) => {
+app.get("/create/:user/:pwd", async (req, res) => {
 
     let nickname = req.params.user;
     let password = req.params.pwd;
@@ -77,11 +114,15 @@ app.get("/create/:user/:pwd", (req, res) => {
     let creation = {
         text: ""
     };
-
-    if(userExists(nickname)){
+    var exist=  await userExists(nickname)
+    console.log("exist = "+exist)
+    console.log(exist);
+    if(exist){
         creation.text = "Ja existeix un usuari amb aquests paràmetres, canvia el nick siusplau";
     } else {
-        if (insertUser(nickname, password)){
+        creation.text = "TODO";
+
+       /* if (insertUser(nickname, password)){
             let code = getUserCode(nickname, password);
 
             if (addToCommon(code)){
@@ -89,7 +130,7 @@ app.get("/create/:user/:pwd", (req, res) => {
             }
         } else {
             creation.text = "No s'ha pogut crear l'usuari. prova-ho de nou mes tard."
-        }
+        }*/
     }
     
     let str = JSON.stringify(creation);
@@ -101,22 +142,29 @@ app.get("/create/:user/:pwd", (req, res) => {
 //CHECK IF USER EXIST
 async function userExists (nickname) {
 
-    let con = mysql.createConnection(bdParams);
-    let exist;
-
-    await con.promise.connect(async function(err){
+    let con = await mysql.createConnection(bdParams);
+    let exist = false;
+    console.log(nickname);
+    console.log("user exist");
+    await con.connect(async (err) => {
+        console.log("works???");
         if(err) throw err;
         else {
             
             let sqlCheck = "SELECT * FROM GENERICUSER WHERE nick = '" + nickname + "'";
-            await con.promise.query(sqlCheck, function (err, result, fields){
+            /*await con.promise().query(sqlCheck, function (err, result, fields){
+                console.log("query user exist");
                 if(err) throw err;
                 if(result.length == 0){
+                    console.log("false");
                     exist = false;
                 } else {
+                    console.log("true");
                     exist = true;
                 }
-            });
+            });*/
+            const[rows, fields] = await con.execute(sqlCheck);
+            console.log(rows + "; " + fields);
 
             con.end(function(err) {
                 if (err){
@@ -124,28 +172,33 @@ async function userExists (nickname) {
                 }
             });
         }
-        return exist;
+        //return exist;
     });
+    console.log("ends user exist"+exist);
+    return exist;
 }
 
 //INSERT USER
-async function insertUser(nickname, password){
+ async function insertUser(nickname, password){
     
     let con = mysql.createConnection(bdParams);
-    let insertOK;
-
-    await  con.promise().connect( async function(err){
+    let insertOK= false;
+    console.log("insert User");
+    let connectionPromise = con.promise().connect( async (err) => {
+        console.log("entra");
         if(err) throw err;
         else {
 
             let sqlInsert = "INSERT INTO GENERICUSER VALUES ( NULL, '" + nickname + "', '" + password + "', 'common')";
 
-            await con.promise().query(sqlInsert, function (err, result){
+            await con.promise().query(sqlInsert, (err, result) => {
                 if(err) throw err;
                 console.log(result.affectedRows + "," + result.changedRows);
                 if(result.affectedRows == 1){
+                    console.log("insert: true");
                     insertOK = true;
                 } else {
+                    console.log("insert: false");
                     insertOK = false;
                 }
 
@@ -156,8 +209,11 @@ async function insertUser(nickname, password){
                 });
             });
         }
-        return insertOK;
+   return true;
     });
+    console.log(connectionPromise);
+    await connectionPromise;
+    return insertOK;
 }
 
 //INSERT USER
@@ -207,13 +263,13 @@ async function getUserCode(nickname, password){
     let con = mysql.createConnection(bdParams);
     let code;
 
-    await con.promise.connect(async function(err){
+    await con.promise().connect(async function(err){
         if(err) throw err;
         else {
 
             let sqlGet = "SELECT code FROM GENERICUSER WHERE nick = '" + nickname + "' AND pwd = '" + password + "'";
                             
-            con.promise.query(sqlGet, function (err, result, fields) {
+            con.promise().query(sqlGet, function (err, result, fields) {
                 if(err) throw err;
                 else {
                     let row = result[0];
@@ -237,13 +293,13 @@ async function addToCommon(code){
     let con = mysql.createConnection(bdParams);
     let added;
 
-    await con.promise.connect(async function(err){
+    await con.promise().connect(async function(err){
         if(err) throw err;
         else {
 
             let sqlInsertToCommon = "INSERT INTO COMMONUSER VALUES (" + code + ")";
                             
-            con.promise.query(sqlInsertToCommon, function (err, result) {
+            con.promise().query(sqlInsertToCommon, function (err, result) {
                 if(err) throw err;
                 if (result.affectedRows == 1) {
                     added = true;                    
