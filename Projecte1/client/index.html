@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://unpkg.com/@mdi/font@6.x/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons">
     <link rel="stylesheet" href="https://unpkg.com/vuetify@2.6.10/dist/vuetify.min.css">
+    
 
     <title>Login</title>
 </head>
@@ -20,19 +21,25 @@
     <div id="app">
         <v-app>
             
-            <h3>Usuari:</h3>                
+            <h3 style="color: rgb(170, 202, 245);">Usuari:</h3>                
             <input type = "text" v-model = "user">
-            <h3>Password:</h3>                
+            <h3 style="color: rgb(170, 202, 245);">Password:</h3>                
             <input type = "text" v-model = "pwd">
                         
             <v-row justify = "space-around">   
                 <v-btn 
-                color = "indigo"
-                elevation = 25
+                color = "primary"
+                elevation = 5
+                outlined
+                rounded
+                x-large
                 @click="getUser">LogIn</v-btn>
                 <v-btn 
-                color = "indigo"
-                elevation = 25
+                color = "primary"
+                elevation = 5
+                outlined
+                rounded
+                x-large
                 @click="createUser">New Account</v-btn>
             </v-row>
             <p>{{text}}</p>
@@ -42,4 +49,12 @@
     </div>
     <script src="index.js"></script>
 </body>
+<style>
+    #app {
+      background: url('https://static.vecteezy.com/system/resources/previews/002/151/440/original/global-business-network-and-technology-on-blue-background-vector.jpg')
+        no-repeat center center fixed !important;
+      background-size: cover;
+    }
+    
+    </style>
 </html>
