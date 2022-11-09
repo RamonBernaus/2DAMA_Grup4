@@ -22,11 +22,12 @@
         <v-app>
             
             <h3 style="color: rgb(170, 202, 244);">Usuari:</h3>                
-            <input type = "text" v-model = "user">
+            <input type = "text" v-model = "user" >
             <h3 style="color: rgb(170, 202, 245);">Password:</h3>                
             <input type = "text" v-model = "pwd">
+            
                         
-            <v-row justify = "space-around">   
+            <v-row justify = "space-around"> 
                 <v-btn 
                 color = "primary"
                 elevation = 5
@@ -41,6 +42,7 @@
                 rounded
                 x-large
                 @click="createUser">New Account</v-btn>
+                
             </v-row>
             <p>{{text}}</p>
             <p>amb perfil de {{role}}</p>
@@ -54,6 +56,18 @@
       background: url('https://static.vecteezy.com/system/resources/previews/002/151/440/original/global-business-network-and-technology-on-blue-background-vector.jpg')
         no-repeat center center fixed !important;
       background-size: cover;
+      text-align: center
+      
+    }
+    p {color: aliceblue;}
+    div{
+        padding-top: 20px;
+        padding-left: 10%;
+        padding-right: 10%;
+    }
+    input{
+        color: seashell;
+        text-align: center;
     }
     
     </style>
