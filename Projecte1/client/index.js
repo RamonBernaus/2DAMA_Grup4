@@ -1,3 +1,11 @@
+function myFunction() {
+    var x = document.getElementById("pwdboxID");
+    if (x.type === "password") {
+      x.type = "text";
+    } else {
+      x.type = "password";
+    }
+  };
 
 var app = new Vue({
     el:"#app",
@@ -6,7 +14,8 @@ var app = new Vue({
         user:"",
         pwd:"",
         role:"",
-        text:""
+        text:"",
+        auth:""
     },
 
     methods:{
@@ -28,8 +37,10 @@ var app = new Vue({
                     if (data.auth == true){
                         this.role = data.rol;
                         this.text = data.text;
+                        this.auth = data.auth;
                     }else{
                         this.text = data.text;
+                        this.auth = data.auth;
                     }
                 }
             ).catch(

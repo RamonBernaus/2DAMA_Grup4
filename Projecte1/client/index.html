@@ -24,11 +24,12 @@
             <h3 style="color: rgb(170, 202, 244);">Usuari:</h3>                
             <input type = "text" v-model = "user" >
             <h3 style="color: rgb(170, 202, 245);">Password:</h3>                
-            <input type = "text" v-model = "pwd">
-            
+            <input type = "password" v-model = "pwd" id="pwdboxID">
+            <input type="checkbox" onclick="myFunction()">Show Password
                         
             <v-row justify = "space-around"> 
                 <v-btn 
+                id="btnLogin"
                 color = "primary"
                 elevation = 5
                 outlined
@@ -36,6 +37,7 @@
                 x-large
                 @click="getUser">LogIn</v-btn>
                 <v-btn 
+                id="btnNewAcc"
                 color = "primary"
                 elevation = 5
                 outlined
@@ -50,6 +52,16 @@
         </v-app>
     </div>
     <script src="index.js"></script>
+
+    <script type="text/javascript">
+        document.getElementById("btnLogin").onclick = function(){
+            if(auth == true)
+                location.href = "/client/login.html";
+        };
+        document.getElementById("btnNewAcc").onclick = function(){
+            location.href = "/client/new-account.html";
+        };
+    </script>
 </body>
 <style>
     #app {
@@ -57,18 +69,25 @@
         no-repeat center center fixed !important;
       background-size: cover;
       text-align: center
-      
     }
-    p {color: aliceblue;}
+
+    p {
+        color: aliceblue;
+    }
+
     div{
-        padding-top: 20px;
+        padding-top: 15px;
         padding-left: 10%;
         padding-right: 10%;
     }
+
     input{
         color: seashell;
         text-align: center;
+        border-style: solid;
+        border-color: rgb(78, 161, 230);
     }
     
+   
     </style>
 </html>
