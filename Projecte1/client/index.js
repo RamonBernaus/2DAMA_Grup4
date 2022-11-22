@@ -38,6 +38,7 @@ var app = new Vue({
                         this.role = data.rol;
                         this.text = data.text;
                         this.auth = data.auth;
+                        location.href = "/client/login.html";
                     }else{
                         this.text = data.text;
                         this.auth = data.auth;
