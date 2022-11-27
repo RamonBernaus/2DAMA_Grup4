@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Projecte_Senser</string>
+    <string name="login">Login</string>
+    <string name="new_user">New User</string>
+    <string name="user">User</string>
+    <string name="back">Back</string>
+</resources>
