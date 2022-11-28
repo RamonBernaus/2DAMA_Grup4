@@ -41,11 +41,11 @@ public class DatabaseAdapter {
         private static final String DATABASE_NAME = "a21rambertor_Dades_Projecte.sql";
         private static final String TABLE_NAME = "Productes";
         // When you do change the structure of the database change the version number from 1 to 2
-        private static final int DATABASE_VERSION = 1;
+        private static final int DATABASE_VERSION = 2;
         private static final String KEY_NAME="name";
         private static final String KEY_PREU = "preu";
         private static final String KEY_TIPUS = "tipus";
-        private static final String CREATE_TABLE = "CREATE TABLE "+ TABLE_NAME+
+        private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS "+ TABLE_NAME+
                 " ("+ KEY_NAME +" varchar(100), " + KEY_TIPUS + " varchar(100), "+ KEY_PREU + " int)";
         private static final String DROP_TABLE = "drop table if exists "+ TABLE_NAME;
         private Context context;
