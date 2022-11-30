@@ -6,23 +6,19 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
-    Button New_user;
+public class UserSwitch extends AppCompatActivity {
+    Button login_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        New_user = findViewById(R.id.new_user);
-        New_user.setOnClickListener(view -> switchActivities());
+        setContentView(R.layout.user_profile);
+        login_button = findViewById(R.id.recycler);
+        login_button.setOnClickListener(view -> switchActivities());
     }
-
 
     private void switchActivities() {
-        Intent switchActivityIntent = new Intent(this, MenuJava.class);
+        Intent switchActivityIntent = new Intent(this, RecyclerViewMain.class);
         startActivity(switchActivityIntent);
     }
-
-
-
 }
